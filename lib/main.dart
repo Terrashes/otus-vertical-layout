@@ -20,6 +20,8 @@ void _drawFrame() {
   final view = PlatformDispatcher.instance.views.first;
   final physicalSize = view.physicalSize;
   if (physicalSize.isEmpty) {
+    // The view has no size yet, so the frame is retried later.
+    PlatformDispatcher.instance.scheduleFrame();
     return;
   }
   // Physical size of the screen is the outer limit of the layout.
@@ -41,6 +43,6 @@ void _drawFrame() {
   final builder = SceneBuilder()..addPicture(Offset.zero, picture);
   final scene = builder.build();
   view.render(scene);
-  scene.dispose();
-  picture.dispose();
+  // The scene and the picture are not disposed here: the engine rasterizes
+  // them after this function returns.
 }
