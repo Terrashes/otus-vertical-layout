@@ -1,7 +1,33 @@
 import 'dart:ui';
 
+import 'src/core/constraints.dart';
+import 'src/core/layout_object.dart';
+import 'src/layout/vertical_layout_manager.dart';
+import 'src/objects/colored_rectangle.dart';
+
 /// Background color of the screen.
 const Color _background = Color(0xFF101418);
+
+/// All objects of the screen. The manager places them one under another,
+/// no y position is written by hand.
+final _screen = VerticalLayoutManager(
+  padding: const Insets.all(24.0),
+  spacing: 16.0,
+  children: <LayoutObject>[
+    ColoredRectangle(
+      preferredSize: const Size(240.0, 80.0),
+      color: const Color(0xFF3DDC84),
+    ),
+    ColoredRectangle(
+      preferredSize: const Size(320.0, 56.0),
+      color: const Color(0xFF4C8DFF),
+    ),
+    ColoredRectangle(
+      preferredSize: const Size(180.0, 120.0),
+      color: const Color(0xFFFFB020),
+    ),
+  ],
+);
 
 /// Entry point of the application.
 ///
@@ -28,15 +54,15 @@ void _drawFrame() {
   final devicePixelRatio = view.devicePixelRatio;
   final screenSize = physicalSize / devicePixelRatio;
 
+  // Outer constraints run from (0, 0) to the size of the screen.
+  _screen.layout(LayoutConstraints.loose(screenSize));
+
   final recorder = PictureRecorder();
   final canvas = Canvas(recorder, Offset.zero & physicalSize);
   // Everything below this line is measured in logical pixels.
   canvas.scale(devicePixelRatio);
   canvas.drawRect(Offset.zero & screenSize, Paint()..color = _background);
-  canvas.drawRect(
-    const Rect.fromLTWH(32.0, 32.0, 240.0, 80.0),
-    Paint()..color = const Color(0xFF3DDC84),
-  );
+  _screen.paint(canvas, Offset.zero);
 
   // The recorded drawing is packed into a scene for the engine.
   final picture = recorder.endRecording();
