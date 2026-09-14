@@ -3,10 +3,15 @@ import 'dart:ui';
 import 'src/core/constraints.dart';
 import 'src/core/layout_object.dart';
 import 'src/layout/vertical_layout_manager.dart';
+import 'src/objects/card_object.dart';
 import 'src/objects/colored_rectangle.dart';
+import 'src/objects/text_object.dart';
 
 /// Background color of the screen.
 const Color _background = Color(0xFF101418);
+
+/// Color of the secondary text.
+const Color _grayText = Color(0xFF8B98A5);
 
 /// Grows in height on tap, which moves the objects below it.
 final _greenBar = ColoredRectangle(
@@ -14,7 +19,7 @@ final _greenBar = ColoredRectangle(
   color: const Color(0xFF3DDC84),
 );
 
-/// tap me and i become wide
+/// Asks for a width larger than the screen to show how constraints cut it.
 final _blueBar = ColoredRectangle(
   preferredSize: const Size(320.0, 56.0),
   color: const Color(0xFF4C8DFF),
@@ -22,8 +27,33 @@ final _blueBar = ColoredRectangle(
 
 /// Changes its color on tap.
 final _orangeBar = ColoredRectangle(
-  preferredSize: const Size(180.0, 120.0),
+  preferredSize: const Size(180.0, 90.0),
   color: const Color(0xFFFFB020),
+);
+
+/// Bar that lives inside the card.
+final _cardBar = ColoredRectangle(
+  preferredSize: const Size(160.0, 36.0),
+  color: const Color(0xFF9B7BFF),
+  cornerRadius: 8.0,
+);
+
+/// Structural object: a title with its own column of objects inside.
+final _card = CardObject(
+  title: 'Card with objects inside',
+  content: VerticalLayoutManager(
+    spacing: 10.0,
+    children: <LayoutObject>[
+      TextObject(
+        text:
+            'Inside the card there is one more manager. Tap the card to fold '
+            'it, or tap the small bar to make it wider.',
+        fontSize: 14.0,
+        color: _grayText,
+      ),
+      _cardBar,
+    ],
+  ),
 );
 
 /// All objects of the screen. The manager places them one under another,
@@ -31,7 +61,22 @@ final _orangeBar = ColoredRectangle(
 final _screen = VerticalLayoutManager(
   padding: const Insets.all(24.0),
   spacing: 16.0,
-  children: <LayoutObject>[_greenBar, _blueBar, _orangeBar],
+  children: <LayoutObject>[
+    TextObject(
+      text: 'Vertical layout with dart:ui',
+      fontSize: 26.0,
+      fontWeight: FontWeight.w700,
+    ),
+    TextObject(
+      text: 'Tap any object: it changes size and the column moves the rest.',
+      fontSize: 14.0,
+      color: _grayText,
+    ),
+    _greenBar,
+    _blueBar,
+    _orangeBar,
+    _card,
+  ],
 );
 
 /// Entry point of the application.
@@ -43,7 +88,7 @@ void main() {
   _greenBar.onTap = () {
     final isSmall = _greenBar.preferredSize.height < 120.0;
     _greenBar.preferredSize = isSmall
-        ? const Size(240.0, 220.0)
+        ? const Size(240.0, 160.0)
         : const Size(240.0, 80.0);
   };
   // This one grows wider than the screen, and the constraints cut it.
@@ -58,6 +103,13 @@ void main() {
     _orangeBar.color = _orangeBar.color == const Color(0xFFFFB020)
         ? const Color(0xFFE5484D)
         : const Color(0xFFFFB020);
+  };
+  // The bar inside the card also makes the card wider.
+  _cardBar.onTap = () {
+    final isNarrow = _cardBar.preferredSize.width < 200.0;
+    _cardBar.preferredSize = isNarrow
+        ? const Size(260.0, 36.0)
+        : const Size(160.0, 36.0);
   };
 
   final dispatcher = PlatformDispatcher.instance;
