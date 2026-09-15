@@ -10,6 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # used only to download the assets when the app runs in a browser
+  web: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -17,3 +20,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # pictures drawn inside the objects
+  assets:
+    - assets/images/
